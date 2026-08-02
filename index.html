@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#66836f" />
+    <meta name="description" content="Planificador móvil para la reforma y mudanza de Casa Neus." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon-192.png" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Casa Neus</title>
+  </head>
+  <body>
+    <div class="decor decor-flower decor-one" aria-hidden="true">✿</div>
+    <div class="decor decor-star decor-two" aria-hidden="true">✦</div>
+    <div class="decor decor-flower decor-three" aria-hidden="true">❀</div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Proyecto hogar</p>
+        <h1>Casa Neus <span aria-hidden="true">🌿</span></h1>
+      </div>
+      <div class="top-actions">
+        <span id="connectionBadge" class="connection-badge">En línea</span>
+        <button id="installButton" class="icon-button hidden" type="button" title="Instalar aplicación" aria-label="Instalar aplicación">⇩</button>
+      </div>
+    </header>
+
+    <main id="mainContent" class="app-shell">
+      <section id="view-home" class="view active" data-view="home" aria-labelledby="home-title">
+        <article class="hero-card">
+          <div class="hero-copy">
+            <p class="eyebrow light">Objetivo principal</p>
+            <h2 id="home-title">14 de septiembre de 2026</h2>
+            <p>Un pequeño paso cada vez, hasta convertir el piso en hogar.</p>
+          </div>
+          <div class="hero-bloom" aria-hidden="true">✿<span>✦</span></div>
+        </article>
+
+        <div class="metric-grid">
+          <article class="metric-card progress-card">
+            <div class="metric-head"><span>Avance total</span><strong id="progressPercent">0%</strong></div>
+            <div class="progress-track" role="progressbar" aria-label="Avance total" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+            <small id="progressDetail">0 de 0 tareas</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Presupuesto activo</span>
+            <strong id="budgetPlanned">0 €</strong>
+            <small id="budgetActual">Gastado: 0 €</small>
+          </article>
+        </div>
+
+        <article class="section-card next-card">
+          <div class="section-heading">
+            <div><p class="eyebrow">Próximo hito</p><h2 id="nextMilestoneTitle">Todo listo</h2></div>
+            <span id="nextMilestoneDays" class="date-pill">—</span>
+          </div>
+          <p id="nextMilestoneDate" class="muted"></p>
+        </article>
+
+        <article class="section-card today-card">
+          <div class="section-heading">
+            <div><p class="eyebrow">Plan realista</p><h2>¿Qué hacemos hoy?</h2></div>
+            <span aria-hidden="true" class="sparkle">✦</span>
+          </div>
+          <p class="muted">Dime cuánto tiempo tenéis y preparo una lista asumible.</p>
+          <div class="time-options" role="group" aria-label="Tiempo disponible">
+            <button type="button" data-minutes="45">45 min</button>
+            <button type="button" data-minutes="180">3 horas</button>
+            <button type="button" data-minutes="480">Un día</button>
+            <button type="button" data-minutes="960">Fin de semana</button>
+          </div>
+          <div id="todayPlan" class="today-plan" aria-live="polite"></div>
+        </article>
+
+        <article class="quote-card">
+          <span aria-hidden="true">🌼</span>
+          <p id="dailyQuote">Hoy una pequeña tarea, mañana un gran hogar.</p>
+        </article>
+      </section>
+
+      <section id="view-plan" class="view" data-view="plan" aria-labelledby="plan-title">
+        <div class="page-heading">
+          <div><p class="eyebrow">Fechas y dependencias</p><h2 id="plan-title">Cronograma</h2></div>
+          <button id="addMilestoneButton" class="primary-small" type="button">+ Hito</button>
+        </div>
+        <p class="page-intro">Las fechas se pueden ajustar. El orden protege el trabajo ya terminado.</p>
+        <div id="timeline" class="timeline"></div>
+      </section>
+
+      <section id="view-tasks" class="view" data-view="tasks" aria-labelledby="tasks-title">
+        <div class="page-heading">
+          <div><p class="eyebrow">Todo bajo control</p><h2 id="tasks-title">Tareas</h2></div>
+          <button id="addTaskButton" class="primary-small" type="button">+ Tarea</button>
+        </div>
+        <div class="toolbar">
+          <label class="search-box"><span aria-hidden="true">⌕</span><input id="taskSearch" type="search" placeholder="Buscar tarea…" aria-label="Buscar tareas" /></label>
+          <select id="taskAreaFilter" aria-label="Filtrar por zona"><option value="all">Todas las zonas</option></select>
+          <select id="taskStatusFilter" aria-label="Filtrar por estado">
+            <option value="pending">Pendientes</option><option value="all">Todas</option><option value="done">Terminadas</option>
+          </select>
+        </div>
+        <div id="taskSummary" class="compact-summary"></div>
+        <div id="taskList" class="task-list"></div>
+      </section>
+
+      <section id="view-budget" class="view" data-view="budget" aria-labelledby="budget-title">
+        <div class="page-heading">
+          <div><p class="eyebrow">Compras y gastos</p><h2 id="budget-title">Presupuesto</h2></div>
+          <button id="addBudgetButton" class="primary-small" type="button">+ Partida</button>
+        </div>
+        <div class="budget-overview">
+          <div><span>Previsto activo</span><strong id="budgetTotalPlanned">0 €</strong></div>
+          <div><span>Gastado</span><strong id="budgetTotalActual">0 €</strong></div>
+          <div><span>Disponible</span><strong id="budgetRemaining">0 €</strong></div>
+        </div>
+        <p class="page-intro">Activa solo las partidas que quieras incluir ahora. Lo futuro queda guardado sin inflar el presupuesto inmediato.</p>
+        <div class="toolbar budget-toolbar">
+          <select id="budgetPhaseFilter" aria-label="Filtrar presupuesto">
+            <option value="all">Todas las fases</option><option value="ahora">Para entrar</option><option value="despues">Después</option><option value="futuro">Futuro</option>
+          </select>
+        </div>
+        <div id="budgetList" class="budget-list"></div>
+      </section>
+
+      <section id="view-more" class="view" data-view="more" aria-labelledby="more-title">
+        <div class="page-heading"><div><p class="eyebrow">Detalles útiles</p><h2 id="more-title">Más</h2></div></div>
+
+        <article class="section-card install-card">
+          <div class="section-heading"><div><p class="eyebrow">Acceso rápido</p><h2>Instalar en el móvil</h2></div><span aria-hidden="true">📱</span></div>
+          <p class="muted"><strong>Android:</strong> abre el menú de Chrome y pulsa “Instalar aplicación” o “Añadir a pantalla de inicio”.<br><strong>iPhone:</strong> abre en Safari, pulsa Compartir y después “Añadir a pantalla de inicio”.</p>
+        </article>
+
+        <article class="section-card">
+          <div class="section-heading"><div><p class="eyebrow">Limpieza profunda</p><h2>Guía para el equipo</h2></div><span aria-hidden="true">🧹</span></div>
+          <p class="muted">Lista incluida también en Tareas. Aquí se agrupa para poder enseñársela directamente al equipo.</p>
+          <div id="cleaningChecklist" class="cleaning-groups"></div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-heading"><div><p class="eyebrow">Antes y después</p><h2>Fotos</h2></div><span aria-hidden="true">📷</span></div>
+          <label class="photo-upload">
+            <input id="photoInput" type="file" accept="image/*" capture="environment" multiple />
+            <span>+ Añadir fotos</span>
+          </label>
+          <div id="photoGallery" class="photo-gallery"></div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-heading"><div><p class="eyebrow">Apuntes libres</p><h2>Notas</h2></div><span id="noteSaved" class="save-state">Guardado</span></div>
+          <textarea id="notes" rows="7" placeholder="Medidas, teléfonos, colores, presupuestos pendientes…"></textarea>
+        </article>
+
+        <article class="section-card data-card">
+          <div class="section-heading"><div><p class="eyebrow">Copia de seguridad</p><h2>Mis datos</h2></div><span aria-hidden="true">☁</span></div>
+          <p class="muted">Los cambios se guardan en este dispositivo. Exporta una copia para pasarla a otro móvil. Las fotos permanecen solo en el dispositivo y no se incluyen en la copia.</p>
+          <div class="data-actions">
+            <button id="exportButton" class="secondary-button" type="button">Exportar copia</button>
+            <label class="secondary-button file-label"><input id="importInput" type="file" accept="application/json" />Importar copia</label>
+            <button id="resetButton" class="text-button danger" type="button">Restaurar datos iniciales</button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-item active" type="button" data-target="home"><span aria-hidden="true">⌂</span><small>Inicio</small></button>
+      <button class="nav-item" type="button" data-target="plan"><span aria-hidden="true">◇</span><small>Plan</small></button>
+      <button class="nav-item" type="button" data-target="tasks"><span aria-hidden="true">✓</span><small>Tareas</small></button>
+      <button class="nav-item" type="button" data-target="budget"><span aria-hidden="true">€</span><small>Gastos</small></button>
+      <button class="nav-item" type="button" data-target="more"><span aria-hidden="true">•••</span><small>Más</small></button>
+    </nav>
+
+    <dialog id="taskDialog" class="app-dialog">
+      <form id="taskForm" method="dialog">
+        <div class="dialog-heading"><h2 id="taskDialogTitle">Nueva tarea</h2><button class="dialog-close" type="button" value="cancel" aria-label="Cerrar">×</button></div>
+        <input id="taskId" type="hidden" />
+        <label>Tarea<input id="taskTitle" required maxlength="120" /></label>
+        <div class="form-grid"><label>Zona<input id="taskArea" required list="areaSuggestions" /></label><label>Fase<select id="taskPhase"><option>Preparativos</option><option>Suelo</option><option>Limpieza</option><option>Pintura</option><option>Mantenimiento</option><option>Compras</option><option>Mudanza</option><option>Más adelante</option></select></label></div>
+        <datalist id="areaSuggestions"></datalist>
+        <div class="form-grid"><label>Prioridad<select id="taskPriority"><option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option></select></label><label>Duración<input id="taskDuration" type="number" min="5" step="5" value="30" /> <small>minutos</small></label></div>
+        <label>Fecha límite<input id="taskDate" type="date" /></label>
+        <label>Notas<textarea id="taskNotes" rows="3"></textarea></label>
+        <div class="dialog-actions"><button id="deleteTaskButton" class="text-button danger hidden" type="button">Eliminar</button><span></span><button class="secondary-button" value="cancel" type="button">Cancelar</button><button class="primary-button" value="default" type="submit">Guardar</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="milestoneDialog" class="app-dialog">
+      <form id="milestoneForm" method="dialog">
+        <div class="dialog-heading"><h2 id="milestoneDialogTitle">Nuevo hito</h2><button class="dialog-close" type="button" value="cancel" aria-label="Cerrar">×</button></div>
+        <input id="milestoneId" type="hidden" />
+        <label>Hito<input id="milestoneTitle" required maxlength="120" /></label>
+        <label>Fecha<input id="milestoneDate" required type="date" /></label>
+        <label>Descripción<textarea id="milestoneDescription" rows="3"></textarea></label>
+        <div class="dialog-actions"><button id="deleteMilestoneButton" class="text-button danger hidden" type="button">Eliminar</button><span></span><button class="secondary-button" value="cancel" type="button">Cancelar</button><button class="primary-button" value="default" type="submit">Guardar</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="budgetDialog" class="app-dialog">
+      <form id="budgetForm" method="dialog">
+        <div class="dialog-heading"><h2 id="budgetDialogTitle">Nueva partida</h2><button class="dialog-close" type="button" value="cancel" aria-label="Cerrar">×</button></div>
+        <input id="budgetId" type="hidden" />
+        <label>Concepto<input id="budgetName" required maxlength="120" /></label>
+        <div class="form-grid"><label>Previsto (€)<input id="budgetPlan" type="number" min="0" step="1" required /></label><label>Gastado (€)<input id="budgetSpent" type="number" min="0" step="0.01" /></label></div>
+        <div class="form-grid"><label>Fase<select id="budgetPhase"><option value="ahora">Para entrar</option><option value="despues">Después</option><option value="futuro">Futuro</option></select></label><label>Estado<select id="budgetStatus"><option value="pendiente">Pendiente</option><option value="mirando">Mirando</option><option value="comprado">Comprado</option></select></label></div>
+        <label class="check-label"><input id="budgetActive" type="checkbox" checked /> Incluir en el presupuesto activo</label>
+        <label>Notas<textarea id="budgetNotes" rows="3"></textarea></label>
+        <div class="dialog-actions"><button id="deleteBudgetButton" class="text-button danger hidden" type="button">Eliminar</button><span></span><button class="secondary-button" value="cancel" type="button">Cancelar</button><button class="primary-button" value="default" type="submit">Guardar</button></div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="celebration" class="celebration" aria-hidden="true"></div>
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
