@@ -4,6 +4,11 @@
   const STORAGE_KEY = "casa-neus-state-v1";
   const priorityWeight = { alta: 0, media: 1, baja: 2 };
   const phaseLabels = { ahora: "Para entrar", despues: "Después", futuro: "Futuro" };
+  const standardAreas = [
+    "Toda la casa", "Entrada", "Pasillo", "Salón", "Cocina", "Lavadero", "Balcón",
+    "Dormitorio principal", "Dormitorio infantil", "Dormitorios", "Tercera habitación",
+    "Baño principal", "Baño secundario", "Baños", "Armarios", "Puertas", "Ventanas"
+  ];
   const quotes = [
     "Hoy una pequeña tarea, mañana un gran hogar.",
     "Paso a paso, esta casa se convierte en vuestro hogar.",
@@ -154,7 +159,8 @@
   }
 
   function areas() {
-    return [...new Set(state.tasks.map((task) => task.area).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+    const taskAreas = state.tasks.map((task) => task.area).filter(Boolean);
+    return [...new Set([...standardAreas, ...taskAreas])];
   }
 
   function renderTaskFilters() {
@@ -162,7 +168,10 @@
     const previous = filter.value || "all";
     filter.innerHTML = `<option value="all">Todas las zonas</option>${areas().map((area) => `<option value="${escapeHtml(area)}">${escapeHtml(area)}</option>`).join("")}`;
     filter.value = [...filter.options].some((option) => option.value === previous) ? previous : "all";
-    $("#areaSuggestions").innerHTML = areas().map((area) => `<option value="${escapeHtml(area)}"></option>`).join("");
+    const taskArea = $("#taskArea");
+    const currentTaskArea = taskArea.value;
+    taskArea.innerHTML = areas().map((area) => `<option value="${escapeHtml(area)}">${escapeHtml(area)}</option>`).join("");
+    if (areas().includes(currentTaskArea)) taskArea.value = currentTaskArea;
   }
 
   function filteredTasks() {

@@ -177,8 +177,7 @@
         <div class="dialog-heading"><h2 id="taskDialogTitle">Nueva tarea</h2><button class="dialog-close" type="button" value="cancel" aria-label="Cerrar">×</button></div>
         <input id="taskId" type="hidden" />
         <label>Tarea<input id="taskTitle" required maxlength="120" /></label>
-        <div class="form-grid"><label>Zona<input id="taskArea" required list="areaSuggestions" /></label><label>Fase<select id="taskPhase"><option>Preparativos</option><option>Suelo</option><option>Limpieza</option><option>Pintura</option><option>Mantenimiento</option><option>Compras</option><option>Mudanza</option><option>Más adelante</option></select></label></div>
-        <datalist id="areaSuggestions"></datalist>
+        <div class="form-grid"><label>Zona<select id="taskArea" required></select></label><label>Fase<select id="taskPhase"><option>Preparativos</option><option>Suelo</option><option>Limpieza</option><option>Pintura</option><option>Mantenimiento</option><option>Compras</option><option>Mudanza</option><option>Más adelante</option></select></label></div>
         <div class="form-grid"><label>Prioridad<select id="taskPriority"><option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option></select></label><label>Duración<input id="taskDuration" type="number" min="5" step="5" value="30" /> <small>minutos</small></label></div>
         <label>Fecha límite<input id="taskDate" type="date" /></label>
         <label>Notas<textarea id="taskNotes" rows="3"></textarea></label>
