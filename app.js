@@ -79,6 +79,25 @@
     return target ? Math.ceil((target - today) / 86400000) : null;
   }
 
+  function todayIso() {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
+  function milestoneState(item) {
+    const status = item.status || "pendiente";
+    const days = daysUntil(item.date);
+    if (status === "completado") return { key: "completado", label: "Completado", detail: item.completedDate ? `el ${formatDate(item.completedDate, { day: "numeric", month: "short" })}` : "" };
+    if (status === "aplazado") {
+      const delay = days < 0 ? ` · ${Math.abs(days)} ${Math.abs(days) === 1 ? "día" : "días"} de retraso` : "";
+      return { key: "aplazado", label: `Aplazado${delay}`, detail: item.previousDate ? `antes: ${formatDate(item.previousDate, { day: "numeric", month: "short" })}` : "" };
+    }
+    if (days < 0) return { key: "retrasado", label: `${Math.abs(days)} ${Math.abs(days) === 1 ? "día" : "días"} de retraso`, detail: "" };
+    if (days === 0) return { key: "hoy", label: "Hoy", detail: "" };
+    return { key: "pendiente", label: "Pendiente", detail: "" };
+  }
+
   function showToast(message) {
     const toast = $("#toast");
     toast.textContent = message;
@@ -128,16 +147,19 @@
     $("#budgetPlanned").textContent = formatMoney(planned);
     $("#budgetActual").textContent = `Gastado: ${formatMoney(actual)}`;
 
-    const next = [...state.milestones].filter((item) => daysUntil(item.date) >= 0).sort((a, b) => a.date.localeCompare(b.date))[0];
+    const next = [...state.milestones].filter((item) => (item.status || "pendiente") !== "completado").sort((a, b) => a.date.localeCompare(b.date))[0];
     if (next) {
       const days = daysUntil(next.date);
+      const status = milestoneState(next);
       $("#nextMilestoneTitle").textContent = next.title;
-      $("#nextMilestoneDate").textContent = `${formatDate(next.date)} · ${next.description || ""}`;
-      $("#nextMilestoneDays").textContent = days === 0 ? "Hoy" : days === 1 ? "Mañana" : `En ${days} días`;
+      $("#nextMilestoneDate").textContent = `${formatDate(next.date)} · ${next.description || ""}${status.detail ? ` · ${status.detail}` : ""}`;
+      $("#nextMilestoneDays").textContent = days < 0 ? `${Math.abs(days)} d tarde` : days === 0 ? "Hoy" : days === 1 ? "Mañana" : `En ${days} días`;
+      $("#nextMilestoneDays").className = `date-pill ${status.key}`;
     } else {
       $("#nextMilestoneTitle").textContent = "¡Todos los hitos cumplidos!";
       $("#nextMilestoneDate").textContent = "Es hora de disfrutar del nuevo hogar.";
       $("#nextMilestoneDays").textContent = "✦";
+      $("#nextMilestoneDays").className = "date-pill completado";
     }
     const quoteIndex = Math.floor((new Date().setHours(0, 0, 0, 0) / 86400000)) % quotes.length;
     $("#dailyQuote").textContent = quotes[Math.abs(quoteIndex)];
@@ -145,17 +167,25 @@
 
   function renderTimeline() {
     const items = [...state.milestones].sort((a, b) => a.date.localeCompare(b.date));
+    const completed = items.filter((item) => (item.status || "pendiente") === "completado").length;
+    const postponed = items.filter((item) => (item.status || "pendiente") === "aplazado").length;
+    const delayed = items.filter((item) => (item.status || "pendiente") !== "completado" && daysUntil(item.date) < 0).length;
+    const pending = items.length - completed;
+    $("#milestoneSummary").innerHTML = `<div><strong>${completed}</strong><span>Completados</span></div><div><strong>${pending}</strong><span>Pendientes</span></div><div><strong>${postponed}</strong><span>Aplazados</span></div><div class="${delayed ? "has-delay" : ""}"><strong>${delayed}</strong><span>Con retraso</span></div>`;
     $("#timeline").innerHTML = items.map((item) => {
-      const past = daysUntil(item.date) < 0 ? "past" : "";
-      return `<article class="timeline-item ${past}">
+      const status = milestoneState(item);
+      const previous = item.previousDate && item.previousDate !== item.date ? `<span class="previous-date">Fecha anterior: ${escapeHtml(formatDate(item.previousDate, { day: "numeric", month: "short", year: "numeric" }))}</span>` : "";
+      return `<article class="timeline-item ${status.key}">
         <span class="timeline-dot" aria-hidden="true"></span>
-        <div class="timeline-item-card"><button type="button" data-edit-milestone="${escapeHtml(item.id)}">
+        <div class="timeline-item-card"><button class="milestone-edit" type="button" data-edit-milestone="${escapeHtml(item.id)}">
           <span class="timeline-date">${escapeHtml(formatDate(item.date, { weekday: "short", day: "numeric", month: "short" }))}</span>
           <h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description || "Toca para añadir una descripción.")}</p>
-        </button></div>
+          ${previous}
+        </button><div class="milestone-footer"><span class="milestone-status ${status.key}">${status.key === "completado" ? "✓ " : ""}${escapeHtml(status.label)}</span>${status.detail ? `<small>${escapeHtml(status.detail)}</small>` : ""}${status.key !== "completado" ? `<button class="complete-milestone" type="button" data-complete-milestone="${escapeHtml(item.id)}">✓ Completar</button>` : ""}</div></div>
       </article>`;
     }).join("") || `<div class="empty-state">Todavía no hay hitos.</div>`;
     $$('[data-edit-milestone]').forEach((button) => button.addEventListener("click", () => openMilestoneDialog(button.dataset.editMilestone)));
+    $$('[data-complete-milestone]').forEach((button) => button.addEventListener("click", () => completeMilestone(button.dataset.completeMilestone)));
   }
 
   function areas() {
@@ -322,18 +352,58 @@
     $("#milestoneId").value = item?.id || "";
     $("#milestoneTitle").value = item?.title || "";
     $("#milestoneDate").value = item?.date || "";
+    $("#milestoneStatus").value = item?.status || "pendiente";
+    $("#milestoneCompletedDate").value = item?.completedDate || "";
     $("#milestoneDescription").value = item?.description || "";
     $("#deleteMilestoneButton").classList.toggle("hidden", !item);
+    updateMilestoneFormHints();
     $("#milestoneDialog").showModal();
+  }
+
+  function updateMilestoneFormHints() {
+    const status = $("#milestoneStatus").value;
+    const id = $("#milestoneId").value;
+    const item = state.milestones.find((entry) => entry.id === id);
+    $("#milestoneCompletedDateLabel").classList.toggle("hidden", status !== "completado");
+    const hint = $("#milestonePostponedHint");
+    const originalDate = item?.previousDate || item?.date;
+    hint.classList.toggle("hidden", status !== "aplazado" || !originalDate);
+    hint.textContent = originalDate ? `Se conservará como fecha anterior: ${formatDate(originalDate)}.` : "";
+    if (status === "completado" && !$("#milestoneCompletedDate").value) $("#milestoneCompletedDate").value = todayIso();
   }
 
   function saveMilestone(event) {
     event.preventDefault();
     const id = $("#milestoneId").value;
     const existing = state.milestones.find((entry) => entry.id === id);
-    const item = { id: id || uid("milestone"), title: $("#milestoneTitle").value.trim(), date: $("#milestoneDate").value, description: $("#milestoneDescription").value.trim() };
+    const newDate = $("#milestoneDate").value;
+    let status = $("#milestoneStatus").value;
+    let previousDate = existing?.previousDate || "";
+    if (existing && newDate !== existing.date && status !== "completado") {
+      status = "aplazado";
+      previousDate ||= existing.date;
+    } else if (status === "aplazado" && existing) {
+      previousDate ||= existing.date;
+    } else if (status === "pendiente") {
+      previousDate = "";
+    }
+    const item = {
+      id: id || uid("milestone"), title: $("#milestoneTitle").value.trim(), date: newDate, status,
+      previousDate, completedDate: status === "completado" ? ($("#milestoneCompletedDate").value || todayIso()) : "",
+      description: $("#milestoneDescription").value.trim()
+    };
     if (existing) Object.assign(existing, item); else state.milestones.push(item);
-    saveState(); $("#milestoneDialog").close(); renderDashboard(); renderTimeline(); showToast("Hito guardado");
+    saveState(); $("#milestoneDialog").close(); renderDashboard(); renderTimeline();
+    showToast(status === "aplazado" ? "Hito aplazado y fecha anterior guardada" : status === "completado" ? "¡Hito completado! ✦" : "Hito guardado");
+    if (status === "completado") celebrate();
+  }
+
+  function completeMilestone(id) {
+    const item = state.milestones.find((entry) => entry.id === id);
+    if (!item) return;
+    item.status = "completado";
+    item.completedDate = todayIso();
+    saveState(); renderDashboard(); renderTimeline(); showToast("¡Hito completado! Un gran paso ✦"); celebrate();
   }
 
   function openBudgetDialog(id = "") {
@@ -478,6 +548,7 @@
     $("#addBudgetButton").addEventListener("click", () => openBudgetDialog());
     $("#taskForm").addEventListener("submit", saveTask);
     $("#milestoneForm").addEventListener("submit", saveMilestone);
+    $("#milestoneStatus").addEventListener("change", updateMilestoneFormHints);
     $("#budgetForm").addEventListener("submit", saveBudgetItem);
     $$(".dialog-close").forEach((button) => button.addEventListener("click", () => button.closest("dialog").close()));
     $$('.app-dialog .secondary-button[value="cancel"]').forEach((button) => button.addEventListener("click", () => button.closest("dialog").close()));

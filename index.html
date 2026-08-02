@@ -86,6 +86,7 @@
           <button id="addMilestoneButton" class="primary-small" type="button">+ Hito</button>
         </div>
         <p class="page-intro">Las fechas se pueden ajustar. El orden protege el trabajo ya terminado.</p>
+        <div id="milestoneSummary" class="milestone-overview" aria-label="Resumen de hitos"></div>
         <div id="timeline" class="timeline"></div>
       </section>
 
@@ -190,7 +191,12 @@
         <div class="dialog-heading"><h2 id="milestoneDialogTitle">Nuevo hito</h2><button class="dialog-close" type="button" value="cancel" aria-label="Cerrar">×</button></div>
         <input id="milestoneId" type="hidden" />
         <label>Hito<input id="milestoneTitle" required maxlength="120" /></label>
-        <label>Fecha<input id="milestoneDate" required type="date" /></label>
+        <div class="form-grid">
+          <label>Fecha prevista<input id="milestoneDate" required type="date" /></label>
+          <label>Estado<select id="milestoneStatus"><option value="pendiente">Pendiente</option><option value="completado">Completado</option><option value="aplazado">Aplazado</option></select></label>
+        </div>
+        <label id="milestoneCompletedDateLabel" class="hidden">Fecha de realización<input id="milestoneCompletedDate" type="date" /></label>
+        <p id="milestonePostponedHint" class="form-hint hidden"></p>
         <label>Descripción<textarea id="milestoneDescription" rows="3"></textarea></label>
         <div class="dialog-actions"><button id="deleteMilestoneButton" class="text-button danger hidden" type="button">Eliminar</button><span></span><button class="secondary-button" value="cancel" type="button">Cancelar</button><button class="primary-button" value="default" type="submit">Guardar</button></div>
       </form>

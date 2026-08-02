@@ -2,13 +2,13 @@ window.CASA_NEUS_DEFAULTS = {
   version: 1,
   notes: "",
   milestones: [
-    { id: "m-preparativos", title: "Piso preparado para el parquet", date: "2026-08-10", description: "Muebles retirados, elementos protegidos y reparaciones con polvo terminadas." },
-    { id: "m-suelo", title: "Comienza el parquet", date: "2026-08-11", description: "Inicio previsto entre el 11 y el 12: acuchillado, lijado y barnizado." },
-    { id: "m-limpieza", title: "Limpieza profunda", date: "2026-08-19", description: "Fecha orientativa tras una semana de secado y ventilación. Confirmar con el profesional del suelo." },
-    { id: "m-pintura", title: "Habitaciones prioritarias pintadas", date: "2026-08-30", description: "Dormitorio infantil y, si el seguro termina la pared, techo de la tercera habitación." },
-    { id: "m-mudanza", title: "Llegan los muebles", date: "2026-08-31", description: "Cama de matrimonio, dos camas infantiles, sofá, muebles de salón y cajas." },
-    { id: "m-entrada", title: "Neus y los niños entran a vivir", date: "2026-09-14", description: "Fecha objetivo principal." },
-    { id: "m-alternativa", title: "Fecha alternativa de entrada", date: "2026-09-28", description: "Margen de dos semanas si surge algún imprevisto." }
+    { id: "m-preparativos", title: "Piso preparado para el parquet", date: "2026-08-10", status: "pendiente", description: "Muebles retirados, elementos protegidos y reparaciones con polvo terminadas." },
+    { id: "m-suelo", title: "Comienza el parquet", date: "2026-08-11", status: "pendiente", description: "Inicio previsto entre el 11 y el 12: acuchillado, lijado y barnizado." },
+    { id: "m-limpieza", title: "Limpieza profunda", date: "2026-08-19", status: "pendiente", description: "Fecha orientativa tras una semana de secado y ventilación. Confirmar con el profesional del suelo." },
+    { id: "m-pintura", title: "Habitaciones prioritarias pintadas", date: "2026-08-30", status: "pendiente", description: "Dormitorio infantil y, si el seguro termina la pared, techo de la tercera habitación." },
+    { id: "m-mudanza", title: "Llegan los muebles", date: "2026-08-31", status: "pendiente", description: "Cama de matrimonio, dos camas infantiles, sofá, muebles de salón y cajas." },
+    { id: "m-entrada", title: "Neus y los niños entran a vivir", date: "2026-09-14", status: "pendiente", description: "Fecha objetivo principal." },
+    { id: "m-alternativa", title: "Fecha alternativa de entrada", date: "2026-09-28", status: "pendiente", description: "Margen de dos semanas si surge algún imprevisto." }
   ],
   tasks: [
     { id: "t01", title: "Desatornillar y retirar los muebles que impiden acceder al suelo", area: "Toda la casa", phase: "Preparativos", priority: "alta", duration: 180, date: "2026-08-10", notes: "Dejar completamente libre la superficie de parquet.", completed: false },
